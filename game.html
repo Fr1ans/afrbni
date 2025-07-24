@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alamakcuy Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .cave-door {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cave-door:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .selected {
+            transform: scale(1.05);
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+        
+        .correct {
+            background-color: #10b981;
+            animation: pulse 0.5s ease;
+        }
+        
+        .wrong {
+            background-color: #ef4444;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+    <div class="container max-w-2xl mx-auto text-center">
+        <!-- Header Section -->
+        <header class="mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-yellow-500">
+                Alamakcuy Adventure
+            </h1>
+            <p class="text-lg opacity-80">Temukan Alamakcuy di dalam goa!</p>
+        </header>
+        
+        <!-- Player Input Section -->
+        <div id="playerInputSection" class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+            <div class="flex flex-col items-center">
+                <img src="Sumur.jpg" alt="Hutan mistis dengan beberapa pintu goa tersembunyi di antara pepohonan" class="mb-4 rounded-lg shadow-md w-full max-w-md">
+                <div class="w-full max-w-xs">
+                    <label for="playerName" class="block text-sm font-medium mb-2">Masukkan Nama Kamu:</label>
+                    <input type="text" id="playerName" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+                <button id="startGameBtn" class="btn-primary mt-4 px-6 py-2 rounded-lg font-medium">
+                    Mulai Petualangan
+                </button>
+            </div>
+        </div>
+        
+        <!-- Game Section -->
+        <div id="gameSection" class="hidden bg-gray-800 rounded-lg p-6 shadow-lg">
+            <h2 id="playerGreeting" class="text-2xl font-semibold mb-4"></h2>
+            
+            <!-- Caves Display -->
+            <div class="flex justify-center space-x-4 mb-6">
+    <div class="cave-door w-16 h-24 rounded-lg flex flex-col items-center justify-end cursor-pointer" data-cave="1">
+        <img src="gambar goa berbatu untuk game yang sangat simple gua tumpukan batu.jpg" class="w-16 h-24">
+        <ul class="text-bold mb-1">1</ul>
+    </div>
+    <div class="cave-door w-16 h-24 rounded-lg flex flex-col items-center justify-end cursor-pointer" data-cave="2">
+        <img src="gambar goa berbatu untuk game yang sangat simple gua tumpukan batu.jpg" class="w-16 h-24">
+        <ul class="text-bold mb-1">2</ul>
+    </div>
+    <div class="cave-door w-16 h-24 rounded-lg flex flex-col items-center justify-end cursor-pointer" data-cave="3">
+        <img src="gambar goa berbatu untuk game yang sangat simple gua tumpukan batu.jpg" class="w-16 h-24">
+        <ul class="text-bold mb-1">3</ul>
+    </div>
+    <div class="cave-door w-16 h-24 rounded-lg flex flex-col items-center justify-end cursor-pointer" data-cave="4">
+        <img src="gambar goa berbatu untuk game yang sangat simple gua tumpukan batu.jpg" class="w-16 h-24">
+        <ul class="text-bold mb-1">4</ul>
+    </div>
+    <div class="cave-door w-16 h-24 rounded-lg flex flex-col items-center justify-end cursor-pointer" data-cave="5">
+        <img src="gambar goa berbatu untuk game yang sangat simple gua tumpukan batu.jpg" class="w-16 h-24">
+        <ul class="text-bold mb-1">5</ul>
+    </div>
+</div>
+
+            
+            <!-- Game UI -->
+            <div id="gameStatus" class="text-lg mb-4 min-h-8"></div>
+            <button id="guessBtn" class="btn-primary px-6 py-2 rounded-lg font-medium hidden">
+                Tebak
+            </button>
+            <button id="playAgainBtn" class="btn-primary px-6 py-2 rounded-lg font-medium hidden">
+                Main Lagi
+            </button>
+        </div>
+        
+        <!-- Game Result -->
+        <div id="gameResult" class="hidden bg-gray-800 rounded-lg p-6 mt-4 shadow-lg">
+            <div id="resultMessage" class="text-xl mb-4"></div>
+            <img id="resultImage" src="https://placehold.co/400x200" alt="Hasil permainan akan ditampilkan di sini" class="rounded-lg mb-4 w-full max-w-md mx-auto">
+            <button id="restartGameBtn" class="btn-primary px-6 py-2 rounded-lg font-medium">
+                Mulai Permainan Baru
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game Variables
+        let playerName = '';
+        let selectedCave = null;
+        let alamakcuyPosition = null;
+        let gameActive = false;
+        
+        // DOM Elements
+        const playerInputSection = document.getElementById('playerInputSection');
+        const gameSection = document.getElementById('gameSection');
+        const gameResult = document.getElementById('gameResult');
+        const playerNameInput = document.getElementById('playerName');
+        const startGameBtn = document.getElementById('startGameBtn');
+        const playerGreeting = document.getElementById('playerGreeting');
+        const caveElements = document.querySelectorAll('.cave-door');
+        const guessBtn = document.getElementById('guessBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const restartGameBtn = document.getElementById('restartGameBtn');
+        const gameStatus = document.getElementById('gameStatus');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultImage = document.getElementById('resultImage');
+        
+        // Event Listeners
+        startGameBtn.addEventListener('click', startGame);
+        restartGameBtn.addEventListener('click', resetGame);
+        guessBtn.addEventListener('click', makeGuess);
+        playAgainBtn.addEventListener('click', playAgain);
+        
+        caveElements.forEach(cave => {
+            cave.addEventListener('click', () => {
+                if (!gameActive) return;
+                
+                // Remove selection from all caves
+                caveElements.forEach(c => c.classList.remove('selected'));
+                
+                // Add selection to clicked cave
+                cave.classList.add('selected');
+                selectedCave = parseInt(cave.dataset.cave);
+                
+                // Show guess button
+                guessBtn.classList.remove('hidden');
+                gameStatus.textContent = `Kamu memilih goa nomor ${selectedCave}`;
+            });
+        });
+        
+        // Game Functions
+        function startGame() {
+            playerName = playerNameInput.value.trim();
+            
+            if (!playerName) {
+                alert('Silahkan masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            
+            // Hide input section and show game section
+            playerInputSection.classList.add('hidden');
+            gameSection.classList.remove('hidden');
+            
+            // Set player greeting
+            playerGreeting.textContent = `Halo ${playerName}, temukan Alamakcuy di salah satu goa ini!`;
+            
+            // Start new round
+            startNewRound();
+        }
+        
+        function startNewRound() {
+            gameActive = true;
+            selectedCave = null;
+            alamakcuyPosition = Math.floor(Math.random() * 5) + 1;
+            
+            // Reset UI
+            caveElements.forEach(cave => {
+                cave.classList.remove('selected', 'correct', 'wrong');
+            });
+            
+            gameStatus.textContent = 'Pilih salah satu goa di atas!';
+            guessBtn.classList.add('hidden');
+            playAgainBtn.classList.add('hidden');
+        }
+        
+        function makeGuess() {
+            if (!selectedCave) return;
+            
+            gameActive = false;
+            
+            // Reveal Alamakcuy position
+            caveElements[alamakcuyPosition - 1].classList.add('correct');
+            
+            // Check if guess is correct
+            if (selectedCave === alamakcuyPosition) {
+                gameStatus.textContent = `Selamat ${playerName}, kamu benar!`;
+                resultMessage.textContent = `Horee! ${playerName} berhasil menemukan Alamakcuy di goa nomor ${alamakcuyPosition}!`;
+                resultImage.alt = `Alamakcuy tersenyum dengan latar belakang goa yang gelap, dengan teks 'Kamu Menang!'`;
+                resultImage.src = `https://placehold.co/80x40?text=Selamat+${playerName}%2C+Kamu+Menang!`;
+            } else {
+                caveElements[selectedCave - 1].classList.add('wrong');
+                gameStatus.textContent = `Yah ${playerName}, kamu salah!`;
+                resultMessage.textContent = `Sayang sekali! Alamakcuy berada di goa nomor ${alamakcuyPosition}, bukan ${selectedCave}. Coba lagi ya!`;
+                resultImage.alt = `Alamakcuy tampak sedih dengan latar belakang goa yang gelap, dengan teks 'Coba Lagi!'`;
+                resultImage.src = `https://placehold.co/80x40?text=Waduh+${playerName}%2C+Alamakcuy+ada+di+goa+${alamakcuyPosition}`;
+            }
+            
+            // Show game result and play again button
+            gameResult.classList.remove('hidden');
+            playAgainBtn.classList.remove('hidden');
+            guessBtn.classList.add('hidden');
+        }
+        
+        function playAgain() {
+            gameResult.classList.add('hidden');
+            startNewRound();
+        }
+        
+        function resetGame() {
+            // Return to initial state
+            playerNameInput.value = '';
+            gameSection.classList.add('hidden');
+            gameResult.classList.add('hidden');
+            playerInputSection.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
